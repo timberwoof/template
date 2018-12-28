@@ -1,0 +1,6 @@
+// ### Template
+code1
+// ### Start A
+code2 from template
+// ### Stop A
+code3
