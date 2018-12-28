@@ -1,5 +1,32 @@
-2018-12-28 14:55:14 unmerge: Log Begins
-2018-12-28 14:55:14 merged file: merged.txt
-2018-12-28 14:55:14 content file: content.txt
-2018-12-28 14:55:14 template file: template.txt
-2018-12-28 14:55:14 Error: could not read template file: template.txt
+2018-12-28 15:22:46 unmerge: Log Begins
+2018-12-28 15:22:46 merged file: merged.txt
+2018-12-28 15:22:46 // ### Merged
+
+2018-12-28 15:22:46 // ### Template template.txt
+
+2018-12-28 15:22:46 // ### Content content.txt
+
+2018-12-28 15:22:46 code1
+
+2018-12-28 15:22:46 // ### Start A
+
+2018-12-28 15:22:46 code2
+
+2018-12-28 15:22:46 // ### Stop A
+
+2018-12-28 15:22:46 code3
+
+2018-12-28 15:22:46 content file: content.txt
+2018-12-28 15:22:46 template file: template.txt
+2018-12-28 15:22:46 // ### Template
+
+2018-12-28 15:22:46 code1
+
+2018-12-28 15:22:46 // ### Start A
+
+2018-12-28 15:22:46 code2 from template
+
+2018-12-28 15:22:46 // ### Stop A
+
+2018-12-28 15:22:46 code3
+

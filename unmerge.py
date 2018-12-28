@@ -34,10 +34,13 @@ def unmerge(templateFileName, contentFileName, mergedFileName):
     log('merged file: '+mergedFileName)
     try:
         mf = open(mergedFileName,'r')
-        mergedFile = mf.read()
+        mergedLines = mf.readlines()
+        mf.close()
     except:
         log('Error: could not read merged file: '+mergedFileName)
         return;
+    for mline in mergedLines:
+        log (mline)
             
     log('content file: '+contentFileName)
     try:
@@ -48,11 +51,15 @@ def unmerge(templateFileName, contentFileName, mergedFileName):
 
     log('template file: '+templateFileName)
     try:
-        tfi = open(templateFileName,'i')
-        templateFile = tfi.read()
+        tfi = open(templateFileName,'r')
+        templateLines = tfi.readlines()
+        tfi.close()
     except:
         log('Error: could not read template file: '+templateFileName)
         return;
+    for tline in templateLines:
+        log(tline)
+
     try:
         tfo = open(tempTemplateFileName,'w')
     except:
