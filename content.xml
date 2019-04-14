@@ -1,0 +1,11 @@
+<body>
+<template>template</template>
+<sections>
+<section id="section2">
+code2 from content
+</section>
+<section id="section3">
+code3 from content
+</section>
+</sections>
+</body>

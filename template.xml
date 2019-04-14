@@ -1,0 +1,14 @@
+<body>
+<commentname>//</commentname>
+<sections>
+<section id="section1">
+code1
+</section>
+<section id="section2">
+code2 from template
+</section>
+<section id="section3">
+code3
+</section>
+</sections>
+</body>

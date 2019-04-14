@@ -1,0 +1,29 @@
+<body>
+    <template>template</template>
+    <sections>
+        <section id="custom">
+// custom for COL
+// python merge.py --template doortemplate.xml --content colonyContent.xml --merged colonyDoor.lsl
+integer FACE_FRAME1 = 0;
+
+integer PRIM_PANEL_1 = 2;
+integer FACE_PANEL_1 = 1;
+
+integer PRIM_DOOR_1 = 2;
+
+vector PANEL_TEXTURE_SCALE = &lt;13.5, 13.5, 0&gt;;
+vector PANEL_TEXTURE_OFFSET = &lt;0.58, 0.9, 0&gt;;
+float PANEL_TEXTURE_ROTATION = -1.0*PI_BY_TWO;
+
+// Physical Sizes
+vector LEAF_SCALE = &lt;0.22, 0.4, 0.8&gt;;
+float CLOSE_FACTOR = -0.35;
+float OPEN_FACTOR = -0.14;
+float ZOFFSET_FACTOR = 0.0;
+        </section>
+<section id="customVariables">
+vector LABEL_COLOR = &lt;1,1,1&gt;;
+</section>
+
+</sections>
+</body>

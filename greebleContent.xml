@@ -1,0 +1,388 @@
+<body>
+<template>template</template>
+<sections>
+<section id="custom">
+// custom for Greeble
+// python merge.py --template doortemplate.xml --content greebleContent.xml --merged greebleDoor.lsl
+integer FACE_FRAME1 = 1;
+integer FACE_FRAME2 = 2;
+
+integer PRIM_PANEL_1 = 3;
+integer PRIM_PANEL_2 = 2;
+integer FACE_PANEL_1 = 5;
+integer FACE_PANEL_2 = 5;
+
+integer PRIM_DOOR_1 = 3;
+integer PRIM_DOOR_2 = 2;
+
+vector PANEL_TEXTURE_SCALE = &lt;30.0, 23.0, 0&gt;;
+vector PANEL_TEXTURE_OFFSET = &lt;0.34, 0.23, 0&gt;;
+
+// Physical Sizes
+vector LEAF_SCALE = &lt;0.5, 0.5, 1.0&gt;;
+float CLOSE_FACTOR = 0.2;
+float OPEN_FACTOR = 0.6;
+float ZOFFSET_FACTOR = 0.0;
+</section>
+<section id="customVariables">
+integer menuChannel;
+integer menuListen;
+</section>
+<section id="optionsMenu">
+string menuItem(string title, integer onOff)
+{
+    string checkbox;
+    if (onOff)
+    {
+        checkbox = "☒";
+    }
+    else
+    {
+        checkbox = "☐";
+    }
+    return checkbox + " " + title;
+}
+
+maintenanceMenu(key whoClicked)
+{
+    list menu = [];
+    menu = menu + [menuItem("Lockdown", OPTION_LOCKDOWN)];
+    menu = menu + [menuItem("Group", OPTION_GROUP)];
+    menu = menu + [menuItem("Zap", OPTION_ZAP)];
+    menu = menu + [menuItem("Open", OPTION_NORMALLY_OPEN)];
+    menu = menu + [menuItem("Button", OPTION_BUTTON)];
+    menu = menu + [menuItem("Bump", OPTION_BUMP)];
+    menu = menu + [menuItem("Debug", OPTION_DEBUG)];
+    menuChannel = (integer)llFloor(llFrand(1000+1000));
+    menuListen = llListen(menuChannel, "", whoClicked, "");
+    llDialog(whoClicked, "Maintenance", menu, menuChannel);
+}
+
+integer setOptionLogical(string message, string choice, integer stateNow, integer stateNew)
+{
+    integer result = stateNow;
+    if (llSubStringIndex(message, choice) > -1)
+    {
+        result = stateNew;
+    }
+    return result;
+}
+
+string getOption(string choice, integer stateNow)
+{
+    string result = "";
+    if (stateNow)
+    {
+        result = choice + " ";
+    }
+    return result;
+}
+
+string getOptionString(string choice, string stateNow)
+{
+    string result = "";
+    if (stateNow != "")
+    {
+        result = choice + stateNow + " ";
+    }
+    return result;
+}
+
+saveOptions()
+{
+    string options = "";
+    options = options + getOption("lockdown", OPTION_LOCKDOWN);
+    options = options + getOption("group", OPTION_GROUP);
+    options = options + getOption("zap", OPTION_ZAP);
+    options = options + getOption("normally-open", OPTION_NORMALLY_OPEN);
+    options = options + getOption("button", OPTION_BUTTON);
+    options = options + getOption("bump", OPTION_BUMP);
+    options = options + getOption("debug", OPTION_DEBUG);
+    options = options + getOption("power", OPTION_POWER);
+    //options = options + getOptionString("outline",(string)OUTLINE_COLOR);
+    //options = options + getOptionString("frame",(string)FRAME_COLOR);
+    if (OPTION_OWNERS)
+    {
+         options = options + "owner[" + owners + "]";
+    }
+    debug("saveOptions: \""+options+"\"");
+    llSetObjectDesc(options);
+    llResetScript();
+ }
+
+</section>
+<section id="setColorsAndIcons">
+setColorsAndIcons()
+{
+    debug("setColorsAndIcons gPowerState:"+(string)gPowerState+" gLockdownState:"+(string)gLockdownState+" doorState:"+(string)doorState);
+    if (gPowerState == POWER_OFF)
+    {
+        debug("setColorsAndIcons gPowerState POWER_OFF");
+        llSetLinkColor(PRIM_PANEL_1, BLACK, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, BLACK, FACE_PANEL_2);
+        return;
+    }
+
+    if (gPowerState == POWER_FAILING)
+    {
+        debug("setColorsAndIcons gPowerState POWER_FAILING");
+        llSetLinkColor(PRIM_PANEL_1, BLUE, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, BLUE, FACE_PANEL_2);
+        return;
+    }
+
+    if (gLockdownState == LOCKDOWN_IMMINENT)
+    {
+        debug("setColorsAndIcons gLockdownState LOCKDOWN_IMMINENT");
+        llSetLinkColor(PRIM_PANEL_1, REDORANGE, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, REDORANGE, FACE_PANEL_2);
+        return;
+    }
+
+    if (gLockdownState == LOCKDOWN_ON)
+    {
+        debug("setColorsAndIcons gLockdownState LOCKDOWN_ON");
+        llSetLinkColor(PRIM_PANEL_1, RED, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, RED, FACE_PANEL_2);
+        llSetLinkTexture(PRIM_PANEL_1, texture_locked, FACE_PANEL_1);
+        llSetLinkTexture(PRIM_PANEL_2, texture_locked, FACE_PANEL_2);
+        return;
+    }
+    
+    if (OPEN == doorState)
+    {
+        debug("setColorsAndIcons doorState OPEN");
+        llSetLinkColor(PRIM_PANEL_1, WHITE, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, WHITE, FACE_PANEL_2);
+        llSetLinkTexture(PRIM_PANEL_1, texture_lockdown, FACE_PANEL_1);
+        llSetLinkTexture(PRIM_PANEL_2, texture_lockdown, FACE_PANEL_2);
+    }
+    else // (CLOSED == doorState)
+    {
+        if (OPTION_NORMALLY_OPEN) // temporarily closed
+        {
+            debug("setColorsAndIcons CLOSED OPTION_NORMALLY_OPEN");
+            llSetLinkColor(PRIM_PANEL_1, WHITE, FACE_PANEL_1);
+            llSetLinkColor(PRIM_PANEL_2, WHITE, FACE_PANEL_2);
+            llSetLinkTexture(PRIM_PANEL_1, texture_locked, FACE_PANEL_1);
+            llSetLinkTexture(PRIM_PANEL_2, texture_locked, FACE_PANEL_2);
+        }
+        else // (!OPTION_NORMALLY_OPEN)
+        {
+            debug("setColorsAndIcons CLOSED !OPTION_NORMALLY_OPEN");
+            if(OPTION_GROUP)
+            {
+                llSetLinkColor(PRIM_PANEL_1, ORANGE, FACE_PANEL_1);
+                llSetLinkColor(PRIM_PANEL_2, ORANGE, FACE_PANEL_2);
+            }
+            else
+            {
+                llSetLinkColor(PRIM_PANEL_1, WHITE, FACE_PANEL_1);
+                llSetLinkColor(PRIM_PANEL_2, WHITE, FACE_PANEL_2);
+            }
+            if(OPTION_BUTTON)
+            {
+                if (OPTION_BUMP)
+                {
+                    llSetLinkTexture(PRIM_PANEL_1, texture_bump_to_open, FACE_PANEL_1);
+                    llSetLinkTexture(PRIM_PANEL_2, texture_bump_to_open, FACE_PANEL_2);
+                }
+                else
+                {
+                    llSetLinkTexture(PRIM_PANEL_1, texture_press_to_open, FACE_PANEL_1);
+                    llSetLinkTexture(PRIM_PANEL_2, texture_press_to_open, FACE_PANEL_2);
+                }
+            }
+            else
+            {
+                if (OPTION_BUMP)
+                {
+                    llSetLinkTexture(PRIM_PANEL_1, texture_bump_to_open, FACE_PANEL_1);
+                    llSetLinkTexture(PRIM_PANEL_2, texture_bump_to_open, FACE_PANEL_2);
+                }
+                else
+                {
+                    llSetLinkTexture(PRIM_PANEL_1, texture_locked, FACE_PANEL_1);
+                    llSetLinkTexture(PRIM_PANEL_2, texture_locked, FACE_PANEL_2);
+                }
+            }
+        }
+    }
+}
+</section>
+<section id="state_entry">
+default
+{
+    state_entry()
+    {
+        getParameters();
+        debug("state_entry");
+        gPowerState = POWER_OFF;
+        
+        // panel texture scale and offset
+        llSetLinkColor(PRIM_PANEL_1, WHITE, FACE_PANEL_1);
+        llSetLinkColor(PRIM_PANEL_2, WHITE, FACE_PANEL_2);
+        llSetLinkPrimitiveParams(PRIM_PANEL_1, [PRIM_TEXTURE, FACE_PANEL_1, texture_locked, PANEL_TEXTURE_SCALE, PANEL_TEXTURE_OFFSET, 0.0]);
+        llSetLinkPrimitiveParams(PRIM_PANEL_2, [PRIM_TEXTURE, FACE_PANEL_2, texture_locked, PANEL_TEXTURE_SCALE, PANEL_TEXTURE_OFFSET, 0.0]);
+        llSetLinkPrimitiveParams(PRIM_PANEL_1, [PRIM_GLOW, FACE_PANEL_1, 0.1]);
+        llSetLinkPrimitiveParams(PRIM_PANEL_2, [PRIM_GLOW, FACE_PANEL_2, 0.1]);
+        
+        setColorsAndIcons();
+        
+        // calculate the leaf movements
+        // get  the size of the door frame and calculate the sizes of the leaves
+        vector frameSize = llGetScale( );
+        vector leafsize = &lt;frameSize.x * LEAF_SCALE.x, frameSize.y * LEAF_SCALE.y, frameSize.z * LEAF_SCALE.z&gt;;
+        fwidth = frameSize.y;
+        fclose = fwidth * CLOSE_FACTOR;
+        fopen = fwidth * OPEN_FACTOR;
+        fdelta = .10;
+        fZoffset = frameSize.z * ZOFFSET_FACTOR;
+        
+        // set the initial leaf sizes and positions
+        llSetLinkPrimitiveParamsFast(PRIM_DOOR_1,[PRIM_SIZE,leafsize]);
+        llSetLinkPrimitiveParamsFast(PRIM_DOOR_2,[PRIM_SIZE,leafsize]);
+        llSetLinkPrimitiveParamsFast(PRIM_DOOR_1,[PRIM_POS_LOCAL, &lt;0.0, -fclose, 0.0&gt;]);
+        llSetLinkPrimitiveParamsFast(PRIM_DOOR_2,[PRIM_POS_LOCAL, &lt;0.0,  fclose, 0.0&gt;]);
+
+        // set up power failure listen
+        gPowerState = POWER_ON;
+        if (OPTION_POWER)
+        {
+            gPowerListen = llListen(POWER_CHANNEL,"","","");
+        }
+        
+        // set up lockdown listen
+        if (OPTION_LOCKDOWN)
+        {
+            gLockdownListen = llListen(LOCKDOWN_CHANNEL,"","","");
+            gLockdownState = LOCKDOWN_OFF;
+        }
+        
+        gSensorRadius = (frameSize.x + frameSize.y) / 3.0;
+        setColorsAndIcons();
+        llPlaySound(sound_granted,1);
+        debug("initialized");
+    }
+</section>
+<section id="touchCollision">
+    touch_start(integer total_number)
+    {
+        debug("touch_start face "+(string)llDetectedTouchFace(0));
+        llResetTime();
+    }
+    
+    touch_end(integer num_detected)
+    {
+        if (llDetectedTouchFace(0) == FACE_PANEL_1 | llDetectedTouchFace(0) == FACE_PANEL_2)
+        {
+            key whoclicked = llDetectedKey(0);
+            if ((llGetTime() &gt;= 2.0) &gt;&gt; checkAuthorization(whoclicked))
+            {
+                maintenanceMenu(whoclicked);
+            }
+            else if (OPTION_BUTTON)
+            {
+                toggleDoor(checkAuthorization(whoclicked), 0);
+            }
+        }
+    }
+    
+    collision_start(integer total_number)
+    {
+        debug("collision_start");
+        if (OPTION_BUMP)
+        {
+            open(checkAuthorization(llDetectedKey(0)), 0);
+        }
+    }
+</section>
+<section id="listen">
+    listen(integer channel, string name, key id, string message) {
+        debug("listen channel:"+(string)channel+" name:'"+name+"' message: '"+message+"'");
+        debug("listen gPowerState:"+(string)gPowerState+" gLockdownState:"+(string)gLockdownState);
+        if ((channel == POWER_CHANNEL)  &gt;  (gPowerState != POWER_FAILING)  &gt;  (gPowerState != POWER_OFF))
+        {
+            debug("listen gPowerState = POWER_FAILING");
+            list xyz = llParseString2List( message, [","], ["&lt;","&gt;"]);
+            vector distantloc;
+            distantloc.x = llList2Float(xyz,1);
+            distantloc.y = llList2Float(xyz,2);
+            distantloc.z = llList2Float(xyz,3);
+            vector here = llGetPos();
+            float distance = llVecDist(here, distantloc)/10.0;
+            gPowerState = POWER_FAILING;
+            gPowerTimer = setTimerEvent((integer)distance);
+        }
+        
+        else if (channel == LOCKDOWN_CHANNEL)
+        {
+            debug("listen "+message);
+            if (message == "LOCKDOWN")
+            {
+                if (LOCKDOWN_DELAY &lt;= 0)
+                {
+                    debug("listen LOCKDOWN_DELAY &lt;= 0 -&gt; gLockdownState = LOCKDOWN_ON");
+                    llPlaySound(sound_lockdown,1);
+                    gLockdownState = LOCKDOWN_ON;
+                    gLockdownTimer = setTimerEvent(LOCKDOWN_RESET_TIME);
+                    close(); // don't put a sensor here. It's lockdown. Get out of the way!
+                }
+                else
+                {
+                    debug("listen LOCKDOWN_DELAY &gt; 0 -&gt; gLockdownState = LOCKDOWN_IMMINENT");
+                    gLockdownState = LOCKDOWN_IMMINENT;
+                    gLockdownTimer = setTimerEvent(LOCKDOWN_DELAY);
+                    setColorsAndIcons();
+                }
+            }
+            if (message == "RELEASE")
+            {
+                // Lockdown On -> Off because message
+                debug("listen RELEASE -> gLockdownState = LOCKDOWN_OFF");
+                gLockdownState = LOCKDOWN_OFF;
+                gLockdownTimer = setTimerEvent(LOCKDOWN_OFF);
+                string optionstring = llGetObjectDesc();
+                if (OPTION_NORMALLY_OPEN)
+                {
+                    open(1, 0);
+                }
+                else
+                {
+                    setColorsAndIcons();
+                }
+            }
+        }
+        
+        else if (channel == menuChannel)
+        {
+            debug("listen menu "+message);
+            integer stateNew = llGetSubString(message,0,0) == "☐";
+            OPTION_LOCKDOWN = setOptionLogical(message, "Lockdown", OPTION_LOCKDOWN, stateNew);
+            OPTION_GROUP = setOptionLogical(message, "Group", OPTION_GROUP, stateNew);
+            OPTION_ZAP = setOptionLogical(message, "Zap", OPTION_ZAP, stateNew);
+            OPTION_NORMALLY_OPEN = setOptionLogical(message, "Open", OPTION_NORMALLY_OPEN, stateNew);
+            OPTION_BUTTON = setOptionLogical(message, "Button", OPTION_BUTTON, stateNew);
+            OPTION_BUMP = setOptionLogical(message, "Bump", OPTION_BUMP, stateNew);
+            OPTION_DEBUG = setOptionLogical(message, "Debug", OPTION_DEBUG, stateNew);
+            
+            saveOptions();
+            
+            if (OPTION_NORMALLY_OPEN  &amp;&amp;  !doorState)
+            {
+                open(1, 0);
+            }
+            else if (!OPTION_NORMALLY_OPEN  &amp;&amp;  doorState)
+            {
+                close();
+            }
+            else
+            {
+                setColorsAndIcons();
+            }
+        }
+    }
+ </section>
+
+</sections>
+</body>
