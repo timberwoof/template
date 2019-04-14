@@ -1,8 +1,0 @@
-// ### Merged
-// ### Template template.txt
-// ### Content content.txt
-code1
-// ### Start A
-code2
-// ### Stop A
-code3
