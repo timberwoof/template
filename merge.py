@@ -7,6 +7,7 @@
 try:
     import argparse
     import os
+    import io
     import shutil
     import time
     import sys
@@ -69,20 +70,22 @@ def merge (templateFileName, contentFileName, mergedFileName):
         key = contentObject['body']['sections']['section'][i]['@id']
         log('key:'+key)
         value = contentObject['body']['sections']['section'][i]['#text']
-        log(key+':'+value)
         #log('value:'+value)
         mergeSections[key] = value
 
     log('===============')
-    log('output:')
-    print (commentMarker + ' merged template '+templateFileName+' with content '+contentFileName)
+    log('open output file '+mergedFileName)
+    templateFile = io.open(mergedFileName, 'w', encoding='utf-8')
+    templateFile.write (commentMarker + ' merged template '+templateFileName+' with content '+contentFileName + '\n')
     for key in mergeSections:
-        print (commentMarker + '-----------')
-        print (commentMarker + ' merge key: ' + key)
-        print (mergeSections[key])
+        templateFile.write (commentMarker + '-----------\n')
+        templateFile.write (commentMarker + ' merge key: ' + key + '\n')
+        value = mergeSections[key].replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+        templateFile.write (value + '\n')
         # {{ >
         # }} <
         # {and} &
+    templateFile.close()
 
 mergeLogFileName = 'mergeLog.log'
 mergeLogFile = open(mergeLogFileName,'w');
