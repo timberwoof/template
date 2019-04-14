@@ -1,30 +1,30 @@
 <body>
-    <commentname>//</commentname>
-    <sections>
+<commentMarker>//</commentMarker>
+<sections>
 <section id="intro">
-    // Replacement script for these doors at Black Gazza
-    // Timberwoof Lupindo
-    // May 20, 2018 - May 29, 2018
-    // 2.2 adds versatile timer; version number matches Luna
-    
-    // these parameters can be optionally set in the description:
-    // debug: whispers operational details
-    // lockdown: responds to station lockdown messages
-    // lockdown-delay[seconds]: waits seconds before closing when lockdown is called
-    //      lockdown checks samegroup; don't turn on lockdown option and group option
-    // power: responds to power failures
-    // group: makes it respond only to member of same group as door
-    // owner[ownername]: gives people listed the ability to open the door despite all settings
-    // zap: zaps nonmember who tries to operate door
-    // normally-open: door will open on reset, after power is restored, and lockdown is lifted
-    // otherwise door will close on reset and after power is restored.
-    // frame:&lt;r,g,b&gt;: sets frame to this color
-    // button: makes the "open" button work
-    // bump: makes the door open when someone bumps into it.
-        
-    // A normally-open door set to group, when closed by a member of the group,
-    // will stay closed for half an hour, implementing the fair-game rule.
-    //
+// Replacement script for these doors at Black Gazza
+// Timberwoof Lupindo
+// May 20, 2018 - May 29, 2018
+// 2.2 adds versatile timer; version number matches Luna
+
+// these parameters can be optionally set in the description:
+// debug: whispers operational details
+// lockdown: responds to station lockdown messages
+// lockdown-delay[seconds]: waits seconds before closing when lockdown is called
+//      lockdown checks samegroup; don't turn on lockdown option and group option
+// power: responds to power failures
+// group: makes it respond only to member of same group as door
+// owner[ownername]: gives people listed the ability to open the door despite all settings
+// zap: zaps nonmember who tries to operate door
+// normally-open: door will open on reset, after power is restored, and lockdown is lifted
+// otherwise door will close on reset and after power is restored.
+// frame:&lt;r,g,b&gt;: sets frame to this color
+// button: makes the "open" button work
+// bump: makes the door open when someone bumps into it.
+
+// A normally-open door set to group, when closed by a member of the group,
+// will stay closed for half an hour, implementing the fair-game rule.
+//
 </section>
 <section id="custom">
 # custom

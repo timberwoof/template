@@ -1,14 +1,14 @@
 <body>
-<commentname>//</commentname>
+<commentMarker>//</commentMarker>
 <sections>
 <section id="section1">
-code1
+code1 from template
 </section>
 <section id="section2">
 code2 from template
 </section>
 <section id="section3">
-code3
+code3 from template
 </section>
 </sections>
 </body>
